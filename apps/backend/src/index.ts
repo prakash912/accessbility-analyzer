@@ -17,15 +17,27 @@ const allowedOrigins = [
   'http://localhost:3000', // For local development
 ].filter(Boolean);
 
+// Log allowed origins for debugging
+console.log('Allowed CORS origins:', allowedOrigins);
+
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      console.log('CORS: Allowing request with no origin');
+      return callback(null, true);
+    }
     
-    if (allowedOrigins.includes(origin)) {
+    // Normalize origin (remove trailing slash)
+    const normalizedOrigin = origin.replace(/\/+$/, '');
+    const normalizedAllowed = allowedOrigins.map(o => o.replace(/\/+$/, ''));
+    
+    if (normalizedAllowed.includes(normalizedOrigin) || allowedOrigins.includes(origin)) {
+      console.log(`CORS: Allowing origin: ${origin}`);
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.log(`CORS: Blocked origin: ${origin}. Allowed: ${allowedOrigins.join(', ')}`);
+      callback(new Error(`Not allowed by CORS. Origin: ${origin}`));
     }
   },
   credentials: true,

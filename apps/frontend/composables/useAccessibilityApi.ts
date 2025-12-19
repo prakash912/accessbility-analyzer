@@ -18,7 +18,8 @@ export interface IssueExplanationResponse {
 
 export const useAccessibilityApi = () => {
   const config = useRuntimeConfig();
-  const apiBaseUrl = config.public.apiBaseUrl;
+  // Remove trailing slash to prevent double slashes in URLs
+  const apiBaseUrl = (config.public.apiBaseUrl || '').replace(/\/+$/, '');
 
   const analyzeUrl = async (
     request: AccessibilityAnalysisRequest,

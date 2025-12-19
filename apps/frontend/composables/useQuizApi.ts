@@ -8,7 +8,8 @@ import type {
 
 export const useQuizApi = () => {
   const config = useRuntimeConfig();
-  const apiBaseUrl = config.public.apiBaseUrl;
+  // Remove trailing slash to prevent double slashes in URLs
+  const apiBaseUrl = (config.public.apiBaseUrl || '').replace(/\/+$/, '');
 
   const generateQuiz = async (issues: Pa11yIssue[]): Promise<Quiz> => {
     try {

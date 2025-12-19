@@ -156,13 +156,12 @@ For support and questions, please open an issue in the repository.
 ### Quick Deployment Options
 
 1. **Vercel (Frontend) + Render (Backend)** - Recommended for production
-   - See [DEPLOYMENT_VERCEL_RENDER.md](./DEPLOYMENT_VERCEL_RENDER.md) for detailed guide
+   - See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for detailed step-by-step guide
    - Frontend on Vercel (free tier available)
    - Backend on Render (free tier available, with limitations)
 
 2. **Both on Vercel** - For simpler setup
    - See [DEPLOYMENT.md](./DEPLOYMENT.md) for monorepo deployment
-   - See [SPLIT_DEPLOYMENT.md](./SPLIT_DEPLOYMENT.md) for separate repos
 
 ### Deploy to Vercel (Monorepo)
 
