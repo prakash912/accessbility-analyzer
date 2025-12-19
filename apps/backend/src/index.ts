@@ -8,31 +8,7 @@ import accessibilityRoutes from './routes/accessibility';
 const app: Application = express();
 const PORT = process.env.PORT || 3001;
 
-// Try to ensure Chrome is available (non-blocking)
-if (process.env.NODE_ENV === 'production') {
-  // In production, try to install Chrome if missing (non-blocking)
-  const { exec } = require('child_process');
-  const puppeteer = require('puppeteer');
-  
-  // Check if Chrome exists, if not, try to install it in background
-  try {
-    const chromePath = puppeteer.executablePath();
-    const fs = require('fs');
-    if (!fs.existsSync(chromePath)) {
-      console.log('⚠️ Chrome not found, attempting to install in background...');
-      exec('npx puppeteer browsers install chrome', (error: any) => {
-        if (error) {
-          console.warn('⚠️ Could not install Chrome automatically:', error.message);
-          console.warn('⚠️ Chrome will be downloaded on first use (may be slow)');
-        } else {
-          console.log('✅ Chrome installed successfully');
-        }
-      });
-    }
-  } catch (error) {
-    console.warn('⚠️ Could not check Chrome installation:', error);
-  }
-}
+// Chrome will be installed at runtime if needed (handled by accessibilityService)
 
 // Middleware
 app.use(helmet());
