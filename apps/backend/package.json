@@ -20,7 +20,9 @@
     "helmet": "^7.1.0",
     "morgan": "^1.10.0",
     "node-fetch": "^2.7.0",
-    "pa11y": "^9.0.0",
+    "pa11y": "^9.0.0"
+  },
+  "optionalDependencies": {
     "puppeteer": "^24.34.0"
   },
   "devDependencies": {

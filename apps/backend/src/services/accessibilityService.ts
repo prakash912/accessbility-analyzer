@@ -1,5 +1,17 @@
 import pa11y from 'pa11y';
-import puppeteer from 'puppeteer';
+// Use dynamic import for puppeteer to avoid build-time issues
+let puppeteer: any = null;
+const getPuppeteer = () => {
+  if (!puppeteer) {
+    try {
+      puppeteer = require('puppeteer');
+    } catch (error) {
+      console.warn('Puppeteer not available:', error);
+      return null;
+    }
+  }
+  return puppeteer;
+};
 import {
   AccessibilityAnalysisRequest,
   AccessibilityAnalysisResponse,
@@ -48,7 +60,13 @@ export class AccessibilityService {
     
     // Try to get Puppeteer's Chrome path - but verify it exists
     try {
-      const puppeteerPath = puppeteer.executablePath();
+      const puppeteerModule = getPuppeteer();
+      if (!puppeteerModule) {
+        console.warn('⚠️ Puppeteer not available');
+        return undefined;
+      }
+      
+      const puppeteerPath = puppeteerModule.executablePath();
       
       if (puppeteerPath && verifyChromePath(puppeteerPath)) {
         console.log('✅ Using Puppeteer Chrome at:', puppeteerPath);

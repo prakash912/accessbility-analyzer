@@ -1,3 +1,0 @@
-# Tell Nixpacks to NOT install Chrome dependencies
-# Puppeteer will handle Chrome installation at runtime
-
