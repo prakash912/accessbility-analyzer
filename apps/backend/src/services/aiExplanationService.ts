@@ -5,14 +5,7 @@ import {
   Suggestion,
 } from '../types/accessibility';
 
-// Dynamic import for node-fetch (ES Module)
-let fetchModule: any = null;
-const getFetch = async () => {
-  if (!fetchModule) {
-    fetchModule = await import('node-fetch');
-  }
-  return fetchModule.default || fetchModule;
-};
+import fetch from 'node-fetch';
 
 export class AIExplanationService {
   private static readonly OPENAI_API_URL =
@@ -51,7 +44,6 @@ export class AIExplanationService {
     apiKey: string
   ): Promise<IssueExplanationResponse> {
     const prompt = this.buildPrompt(issue);
-    const fetch = await getFetch();
 
     const response = await fetch(this.OPENAI_API_URL, {
       method: 'POST',

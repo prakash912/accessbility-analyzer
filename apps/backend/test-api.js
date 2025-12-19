@@ -1,12 +1,7 @@
-// Dynamic import for node-fetch (ES Module)
-const getFetch = async () => {
-  const fetchModule = await import('node-fetch');
-  return fetchModule.default || fetchModule;
-};
+import fetch from 'node-fetch';
 
 async function testAccessibilityAPI() {
   const baseUrl = 'http://localhost:3001/api/v1';
-  const fetch = await getFetch();
 
   console.log('🧪 Testing Accessibility Analyzer API...\n');
 

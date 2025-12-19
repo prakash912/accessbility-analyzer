@@ -1,13 +1,6 @@
 import { LearningModeContent, Pa11yIssue } from '../types/accessibility';
 
-// Dynamic import for node-fetch (ES Module)
-let fetchModule: any = null;
-const getFetch = async () => {
-  if (!fetchModule) {
-    fetchModule = await import('node-fetch');
-  }
-  return fetchModule.default || fetchModule;
-};
+import fetch from 'node-fetch';
 
 /**
  * Learning Mode Service
@@ -58,7 +51,6 @@ export class LearningModeService {
     apiKey: string
   ): Promise<LearningModeContent> {
     const prompt = this.buildLearningPrompt(issue);
-    const fetch = await getFetch();
 
     const response = await fetch(this.OPENAI_API_URL, {
       method: 'POST',
