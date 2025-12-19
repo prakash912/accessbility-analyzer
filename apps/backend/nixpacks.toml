@@ -1,0 +1,20 @@
+[phases.setup]
+nixPkgs = ["nodejs-18_x"]
+
+[phases.install]
+cmds = [
+  "cd apps/backend",
+  "NODE_ENV=development npm ci",
+  "npm run build"
+]
+
+# Skip Chrome installation during build - install at runtime instead
+# This prevents build failures and reduces build time
+[phases.build]
+cmds = [
+  "echo 'Chrome will be installed at runtime if needed'"
+]
+
+[start]
+cmd = "cd apps/backend && npm start"
+
