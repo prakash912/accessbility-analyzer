@@ -1,0 +1,1 @@
+export { default } from "file:///Users/prakashranjanrai/Desktop/Accessibility-Analyzer-Tool/node_modules/.pnpm/@nuxt+vite-builder@3.17.5_@types+node@20.19.1_eslint@8.57.1_sass@1.89.2_typescript@5.8.3_vue@3.5.17/node_modules/@nuxt/vite-builder/dist/runtime/client.manifest.mjs"

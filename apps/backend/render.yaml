@@ -1,0 +1,23 @@
+# Render Blueprint Configuration
+# This file can be used to deploy the backend service on Render
+# Reference: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: accessibility-analyzer-backend
+    env: node
+    plan: free # Change to 'starter' or 'standard' for paid plans
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        sync: false # Set this manually after frontend deployment
+      - key: OPENAI_API_KEY
+        sync: false # Optional - set if using AI features
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: false
+
