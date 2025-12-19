@@ -1,5 +1,5 @@
 import pa11y from 'pa11y';
-import puppeteer from 'puppeteer-core';
+import puppeteer from 'puppeteer';
 import {
   AccessibilityAnalysisRequest,
   AccessibilityAnalysisResponse,
@@ -46,8 +46,20 @@ export class AccessibilityService {
       }
     };
     
-    // puppeteer-core doesn't have executablePath, so we skip this check
-    // Chrome will be found via other methods below
+    // Try to get Puppeteer's Chrome path - but verify it exists
+    try {
+      const puppeteerPath = puppeteer.executablePath();
+      
+      if (puppeteerPath && verifyChromePath(puppeteerPath)) {
+        console.log('✅ Using Puppeteer Chrome at:', puppeteerPath);
+        return puppeteerPath;
+      } else if (puppeteerPath) {
+        console.warn('⚠️ Puppeteer Chrome path does not exist or is not accessible:', puppeteerPath);
+        console.warn('⚠️ Will let Puppeteer handle Chrome discovery automatically');
+      }
+    } catch (error) {
+      console.warn('⚠️ Could not get Puppeteer Chrome path:', error);
+    }
 
     // Try to find Chrome in Puppeteer cache directory
     try {

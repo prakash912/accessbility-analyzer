@@ -21,7 +21,7 @@
     "morgan": "^1.10.0",
     "node-fetch": "^2.7.0",
     "pa11y": "^9.0.0",
-    "puppeteer-core": "^24.34.0"
+    "puppeteer": "^24.34.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
