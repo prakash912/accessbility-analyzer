@@ -10,9 +10,9 @@ WORKDIR /app
 # Copy package files from backend directory
 COPY apps/backend/package*.json ./
 
-# Install ALL dependencies (including devDependencies for TypeScript build)
-# npm ci installs all dependencies by default, including devDependencies
-RUN npm ci
+# Install dependencies using npm install (more forgiving than npm ci)
+# This ensures correct versions are installed even if lock file is outdated
+RUN npm install
 
 # Copy source code from backend directory
 COPY apps/backend/ ./
