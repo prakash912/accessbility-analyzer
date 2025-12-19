@@ -6,6 +6,17 @@ import {
   Pa11yIssue,
 } from '../types/accessibility';
 
+// Configure Puppeteer cache directory for Render
+if (process.env.PUPPETEER_CACHE_DIR) {
+  process.env.PUPPETEER_CACHE_DIR = process.env.PUPPETEER_CACHE_DIR;
+} else if (process.env.HOME) {
+  // Use HOME directory for cache (Render sets this)
+  process.env.PUPPETEER_CACHE_DIR = require('path').join(process.env.HOME, '.cache', 'puppeteer');
+} else {
+  // Fallback to Render's default
+  process.env.PUPPETEER_CACHE_DIR = '/opt/render/.cache/puppeteer';
+}
+
 export class AccessibilityService {
   /**
    * Get Chrome executable path from Puppeteer

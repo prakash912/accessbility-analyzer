@@ -1,5 +1,13 @@
-import fetch from 'node-fetch';
 import { Pa11yIssue } from '../types/accessibility';
+
+// Dynamic import for node-fetch (ES Module)
+let fetchModule: any = null;
+const getFetch = async () => {
+  if (!fetchModule) {
+    fetchModule = await import('node-fetch');
+  }
+  return fetchModule.default || fetchModule;
+};
 
 export interface QuizQuestion {
   id: string;
@@ -85,6 +93,7 @@ export class QuizService {
     // Extract unique topics from issues
     const topics = this.extractTopics(issues);
     const prompt = this.buildQuizPrompt(issues, topics);
+    const fetch = await getFetch();
 
     const response = await fetch(this.OPENAI_API_URL, {
       method: 'POST',
@@ -343,6 +352,7 @@ Return the response in the following JSON format:
     apiKey: string
   ): Promise<QuizResult> {
     const prompt = this.buildEvaluationPrompt(quiz, submissions);
+    const fetch = await getFetch();
 
     const response = await fetch(this.OPENAI_API_URL, {
       method: 'POST',
