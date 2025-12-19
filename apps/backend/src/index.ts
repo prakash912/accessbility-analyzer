@@ -12,10 +12,10 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet());
 
 // CORS configuration - allow frontend from environment variable
-const allowedOrigins = [
+const allowedOrigins: string[] = [
   process.env.FRONTEND_URL,
   'http://localhost:3000', // For local development
-].filter(Boolean);
+].filter((origin): origin is string => Boolean(origin));
 
 // Log allowed origins for debugging
 console.log('Allowed CORS origins:', allowedOrigins);
