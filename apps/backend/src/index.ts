@@ -15,10 +15,16 @@ app.use(helmet());
 const allowedOrigins: string[] = [
   process.env.FRONTEND_URL,
   'http://localhost:3000', // For local development
+  'https://accessbility-analyzer-frontend.vercel.app', // Fallback for common deployment
 ].filter((origin): origin is string => Boolean(origin));
+
+// Normalize all origins (remove trailing slashes) for comparison
+const normalizedAllowedOrigins = allowedOrigins.map(o => o.replace(/\/+$/, '').toLowerCase());
 
 // Log allowed origins for debugging
 console.log('Allowed CORS origins:', allowedOrigins);
+console.log('Normalized allowed origins:', normalizedAllowedOrigins);
+console.log('FRONTEND_URL env var:', process.env.FRONTEND_URL);
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -28,16 +34,23 @@ app.use(cors({
       return callback(null, true);
     }
     
-    // Normalize origin (remove trailing slash)
-    const normalizedOrigin = origin.replace(/\/+$/, '');
-    const normalizedAllowed = allowedOrigins.map(o => o.replace(/\/+$/, ''));
+    // Normalize origin (remove trailing slash and convert to lowercase for comparison)
+    const normalizedOrigin = origin.replace(/\/+$/, '').toLowerCase();
     
-    if (normalizedAllowed.includes(normalizedOrigin) || allowedOrigins.includes(origin)) {
-      console.log(`CORS: Allowing origin: ${origin}`);
+    // Check if origin matches (case-insensitive, ignoring trailing slashes)
+    const isAllowed = normalizedAllowedOrigins.includes(normalizedOrigin) || 
+                      allowedOrigins.some(allowed => 
+                        allowed.replace(/\/+$/, '').toLowerCase() === normalizedOrigin
+                      );
+    
+    if (isAllowed) {
+      console.log(`CORS: ✅ Allowing origin: ${origin}`);
       callback(null, true);
     } else {
-      console.log(`CORS: Blocked origin: ${origin}. Allowed: ${allowedOrigins.join(', ')}`);
-      callback(new Error(`Not allowed by CORS. Origin: ${origin}`));
+      console.log(`CORS: ❌ Blocked origin: ${origin}`);
+      console.log(`CORS: Allowed origins are: ${allowedOrigins.join(', ')}`);
+      console.log(`CORS: Normalized blocked origin: ${normalizedOrigin}`);
+      callback(new Error(`Not allowed by CORS. Origin: ${origin}. Allowed: ${allowedOrigins.join(', ')}`));
     }
   },
   credentials: true,

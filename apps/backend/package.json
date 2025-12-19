@@ -11,7 +11,8 @@
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.{ts,js,json}\"",
     "test": "jest",
-    "postinstall": "npx puppeteer browsers install chrome || echo 'Chrome installation skipped or failed'"
+    "postinstall": "npx puppeteer browsers install chrome || echo 'Chrome installation skipped or failed'",
+    "install-chrome": "npx puppeteer browsers install chrome"
   },
   "dependencies": {
     "cors": "^2.8.5",

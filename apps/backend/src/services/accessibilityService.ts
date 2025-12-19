@@ -9,15 +9,115 @@ import {
 export class AccessibilityService {
   /**
    * Get Chrome executable path from Puppeteer
+   * Handles Render and other deployment environments
+   * Only returns a path if Chrome actually exists at that location
    */
   private static getChromeExecutablePath(): string | undefined {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Helper to verify file exists and is executable
+    const verifyChromePath = (chromePath: string): boolean => {
+      try {
+        if (!fs.existsSync(chromePath)) {
+          return false;
+        }
+        // Check if it's a file (not a directory)
+        const stats = fs.statSync(chromePath);
+        if (!stats.isFile()) {
+          return false;
+        }
+        // Try to access it (check if executable)
+        fs.accessSync(chromePath, fs.constants.F_OK);
+        return true;
+      } catch {
+        return false;
+      }
+    };
+    
+    // Try to get Puppeteer's Chrome path - but verify it exists
     try {
-      // Use Puppeteer's executablePath method to get the correct Chrome path
-      return puppeteer.executablePath();
+      const puppeteerPath = puppeteer.executablePath();
+      
+      if (puppeteerPath && verifyChromePath(puppeteerPath)) {
+        console.log('✅ Using Puppeteer Chrome at:', puppeteerPath);
+        return puppeteerPath;
+      } else if (puppeteerPath) {
+        console.warn('⚠️ Puppeteer Chrome path does not exist or is not accessible:', puppeteerPath);
+        console.warn('⚠️ Will let Puppeteer handle Chrome discovery automatically');
+      }
     } catch (error) {
-      console.warn('Could not determine Chrome executable path:', error);
-      return undefined;
+      console.warn('⚠️ Could not get Puppeteer Chrome path:', error);
     }
+
+    // Try to find Chrome in Puppeteer cache directory
+    try {
+      const possibleCacheDirs = [
+        process.env.PUPPETEER_CACHE_DIR,
+        path.join(process.env.HOME || '/opt/render', '.cache', 'puppeteer', 'chrome'),
+        path.join(process.cwd(), '.cache', 'puppeteer', 'chrome'),
+        '/opt/render/.cache/puppeteer/chrome',
+      ].filter(Boolean) as string[];
+      
+      for (const cacheDir of possibleCacheDirs) {
+        if (!fs.existsSync(cacheDir)) {
+          continue;
+        }
+        
+        // Look for chrome executable in cache directory
+        const findChrome = (dir: string, depth = 0): string | null => {
+          // Limit recursion depth to avoid infinite loops
+          if (depth > 5) return null;
+          
+          try {
+            const entries = fs.readdirSync(dir, { withFileTypes: true });
+            
+            for (const entry of entries) {
+              const fullPath = path.join(dir, entry.name);
+              
+              if (entry.isDirectory()) {
+                const found = findChrome(fullPath, depth + 1);
+                if (found) return found;
+              } else if (entry.name === 'chrome' || entry.name === 'chromium') {
+                if (verifyChromePath(fullPath)) {
+                  return fullPath;
+                }
+              }
+            }
+          } catch {
+            // Continue to next directory
+          }
+          return null;
+        };
+        
+        const chromePath = findChrome(cacheDir);
+        if (chromePath) {
+          console.log('✅ Found Chrome in cache at:', chromePath);
+          return chromePath;
+        }
+      }
+    } catch (error) {
+      console.warn('⚠️ Could not search Puppeteer cache:', error);
+    }
+
+    // Try system Chrome locations (for environments with system Chrome installed)
+    const systemPaths = [
+      '/usr/bin/google-chrome',
+      '/usr/bin/google-chrome-stable',
+      '/usr/bin/chromium',
+      '/usr/bin/chromium-browser',
+    ];
+
+    for (const systemPath of systemPaths) {
+      if (verifyChromePath(systemPath)) {
+        console.log('✅ Found system Chrome at:', systemPath);
+        return systemPath;
+      }
+    }
+
+    // Don't set executablePath - let Puppeteer/Pa11y handle Chrome discovery automatically
+    console.log('ℹ️ Chrome executable path not found. Puppeteer will handle Chrome discovery automatically.');
+    return undefined;
   }
 
   /**
@@ -30,7 +130,7 @@ export class AccessibilityService {
       // Validate URL
       const url = new URL(request.url);
 
-      // Get Chrome executable path
+      // Get Chrome executable path (only if it actually exists)
       const chromeExecutablePath = this.getChromeExecutablePath();
 
       // Build chrome launch config
@@ -43,13 +143,26 @@ export class AccessibilityService {
           '--no-first-run',
           '--no-zygote',
           '--disable-gpu',
+          '--single-process', // Important for Render's limited resources
         ],
         ignoreHTTPSErrors: true,
       };
 
-      // Only set executablePath if we have a valid path
+      // Only set executablePath if we have a verified, existing path
+      // If not set, Puppeteer/Pa11y will handle Chrome discovery automatically
       if (chromeExecutablePath) {
-        chromeLaunchConfig.executablePath = chromeExecutablePath;
+        const fs = require('fs');
+        // Double-check the path exists before using it
+        if (fs.existsSync(chromeExecutablePath)) {
+          chromeLaunchConfig.executablePath = chromeExecutablePath;
+          console.log('✅ Using Chrome at:', chromeExecutablePath);
+        } else {
+          console.warn('⚠️ Chrome path was provided but does not exist:', chromeExecutablePath);
+          console.warn('⚠️ Letting Puppeteer handle Chrome discovery');
+          // Don't set executablePath - let Puppeteer find Chrome automatically
+        }
+      } else {
+        console.log('ℹ️ No Chrome path specified - Puppeteer will discover Chrome automatically');
       }
 
       // Configure Pa11y options
