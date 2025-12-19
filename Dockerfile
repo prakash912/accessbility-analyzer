@@ -10,9 +10,9 @@ WORKDIR /app
 # Copy package files from backend directory
 COPY apps/backend/package*.json ./
 
-# Install dependencies (including devDependencies for TypeScript build)
-# Skip Chrome installation to avoid build failures
-RUN npm ci --include=dev
+# Install ALL dependencies (including devDependencies for TypeScript build)
+# npm ci installs all dependencies by default, including devDependencies
+RUN npm ci
 
 # Copy source code from backend directory
 COPY apps/backend/ ./
@@ -20,7 +20,7 @@ COPY apps/backend/ ./
 # Build TypeScript
 RUN npm run build
 
-# Remove devDependencies to reduce image size
+# Remove devDependencies to reduce image size (after build)
 RUN npm prune --production
 
 # Don't install Chrome during build - it will be installed at runtime if needed
