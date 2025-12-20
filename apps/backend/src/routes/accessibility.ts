@@ -175,7 +175,6 @@ router.post('/quiz/generate', async (req: Request, res: Response) => {
     }
 
     // Generate quiz
-        // Generate quiz
     const quiz = await QuizService.generateQuiz(issues);
 
     return res.status(200).json(quiz);
