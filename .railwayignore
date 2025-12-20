@@ -1,5 +1,7 @@
 pnpm-lock.yaml
 pnpm-workspace.yaml
+package.json
 apps/frontend
 node_modules
+package-lock.json
 
